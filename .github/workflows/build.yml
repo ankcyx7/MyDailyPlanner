@@ -1,0 +1,41 @@
+name: Build APK
+on:
+  push:
+    branches: [ main ] # 当代码提交到 main 分支时自动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          pip install flet supabase python-dotenv
+
+      # 核心：将你在 Settings 里设的 Secret 转换成云端打包环境中的 .env 文件
+      - name: Create .env file
+        run: |
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
+          echo "SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}" >> .env
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0' # 适配最新 Flet 版本的稳定 Flutter
+
+      - name: Build APK
+        run: |
+          flet build apk
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-planner-app
+          path: build/apk/*.apk
