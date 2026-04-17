@@ -1,7 +1,7 @@
 name: Build APK
 on:
   push:
-    branches: [ main ] # 当代码提交到 main 分支时自动触发
+    branches: [ main ]
 
 jobs:
   build:
@@ -19,7 +19,6 @@ jobs:
         run: |
           pip install flet supabase python-dotenv
 
-      # 核心：将你在 Settings 里设的 Secret 转换成云端打包环境中的 .env 文件
       - name: Create .env file
         run: |
           echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
@@ -28,11 +27,13 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.0' # 适配最新 Flet 版本的稳定 Flutter
+          # 【关键修改1】升级到 Flet 0.84.0 要求的 Flutter 版本
+          flutter-version: '3.24.2' 
 
       - name: Build APK
         run: |
-          flet build apk
+          # 【关键修改2】加上 --yes 确保在无人值守环境下自动确认安装
+          flet build apk --yes
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
