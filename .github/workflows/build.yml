@@ -32,7 +32,7 @@ jobs:
 
       - name: Build APK
         run: |
-          ls -la# 【关键修改2】加上 --yes 确保在无人值守环境下自动确认安装
+          ls -la
           flet build apk . --yes
 
       - name: Upload Artifact
